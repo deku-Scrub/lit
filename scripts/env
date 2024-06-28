@@ -1,5 +1,7 @@
 DATA_DIR=data
 CACHE_DIR="${DATA_DIR}"/cache
 THESAURUS_DIR="${DATA_DIR}"/thesaurus
+DBNAME="${DATA_DIR}"/lit.db
+
 
 N_JOBS=4
