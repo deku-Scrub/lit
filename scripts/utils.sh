@@ -46,3 +46,9 @@ insert_db() {
 
     sqlite3 "${DBNAME}" '.mode '"${FORMAT}" ".import /dev/stdin "${TABLE}""
 }
+
+
+make_db() {
+    sqlite3 "${DBNAME}" scripts/db/create_tables.sql
+    sqlite3 "${DBNAME}" scripts/db/create_indexes.sql
+}
