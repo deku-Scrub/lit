@@ -5,44 +5,45 @@ IFS=$'\n\t'
 source scripts/env
 
 URL='https://download.kiwix.org/zim/wiktionary/wiktionary_en_all_nopic_2023-11.zim'
-ZIM_FILENAME="${DATA_DIR}"/"$(basename "${URL}")"
 WIKTIONARY_DIR="${DATA_DIR}"/wiktionary
-ENGLISH_WORDLIST="${DATA_DIR}"/english_filenames.txt
-export ENGLISH_DIR="${DATA_DIR}"/english # Export for parallel.
-MALFORMED_DIR="${DATA_DIR}"/malformed_names
+ZIM_FILENAME="${WIKTIONARY_DIR}"/"$(basename "${URL}")"
+EXTRACTED_DIR="${WIKTIONARY_DIR}"/extracted
+ENGLISH_WORDLIST="${WIKTIONARY_DIR}"/english_filenames.txt
+export ENGLISH_DIR="${WIKTIONARY_DIR}"/english # Export for parallel.
+MALFORMED_DIR="${WIKTIONARY_DIR}"/malformed_names
 PARTS_OF_SPEECH_PATTERNS=scripts/parts_of_speech.txt
 
 
 download_if_not_found() {
-    wget -P "${DATA_DIR}" "${URL}" || echo 'Problem downloading' "${URL}"
+    wget -P "${WIKTIONARY_DIR}" "${URL}" || echo 'Problem downloading' "${URL}"
 }
 
 
 handle_decompression_exceptions() {
     mkdir -p "${MALFORMED_DIR}"
 
-    # The `"${WIKTIONARY_DIR}"/A` folder should only contain text files.
+    # The `"${EXTRACTED_DIR}"/A` folder should only contain text files.
     # Any directory here is a result of an exception due to the text file
     # having a `/` in its basename.  These directories are moved to
     # `"${MALFORMED_DIR}"`.
-    find "${WIKTIONARY_DIR}"/A -maxdepth 1 -mindepth 1 \
+    find "${EXTRACTED_DIR}"/A -maxdepth 1 -mindepth 1 \
         -type d -regex '.*.*' -exec mv {} "${MALFORMED_DIR}" \;
 
-    # Copy exceptions to `"${WIKTIONARY_DIR}"/A` if they don't exist.
+    # Copy exceptions to `"${EXTRACTED_DIR}"/A` if they don't exist.
     # This is fine since the exceptions do not have malformed names --
     # they are text files without any `/` in their basenames.
     #
     # Exception basenames start with `A`.
     # `%2f` encodes a `/`.
-    find "${WIKTIONARY_DIR}"/_exceptions/ -type f -regex '.*/A[^/]+' \
+    find "${EXTRACTED_DIR}"/_exceptions/ -type f -regex '.*/A[^/]+' \
         | while read -r FILENAME; \
         do
           # Sanitize filename then check if it exists.  If not, then
           # the exception wasn't handled and so is copied.
           CLEANLINE="$(echo "$FILENAME" | sed -r -e 's/%2f//g' -e 's#/A#/#')"
-          if [ ! -s "${WIKTIONARY_DIR}"/A/"$(basename "$CLEANLINE")" ]
+          if [ ! -s "${EXTRACTED_DIR}"/A/"$(basename "$CLEANLINE")" ]
           then
-            cp "${FILENAME}" "${WIKTIONARY_DIR}"/A/
+            cp "${FILENAME}" "${EXTRACTED_DIR}"/A/
             cp "${FILENAME}" "${MALFORMED_DIR}"/
           fi
         done
@@ -50,14 +51,14 @@ handle_decompression_exceptions() {
 
 
 decompress_zim() {
-    zimdump dump --dir "${WIKTIONARY_DIR}" "${ZIM_FILENAME}"
+    zimdump dump --dir "${EXTRACTED_DIR}" "${ZIM_FILENAME}"
     handle_decompression_exceptions
 }
 
 
 find_english_entries() {
     # Find pages with `English` sections.
-    find "${WIKTIONARY_DIR}"/A -type f -iregex '.*.*' \
+    find "${EXTRACTED_DIR}"/A -type f -iregex '.*.*' \
         | parallel -N100000 -j"${N_JOBS}" 'grep -m1 -lF "id=\"English\"" ' \
         > "${ENGLISH_WORDLIST}"
 }
@@ -66,7 +67,7 @@ find_english_entries() {
 move_english_entries() {
     # TODO: do -j"${N_JOBS}"?
     mkdir -p "${ENGLISH_DIR}"/A
-    mv "${WIKTIONARY_DIR}"/- "${ENGLISH_DIR}"/-
+    mv "${EXTRACTED_DIR}"/- "${ENGLISH_DIR}"/-
     cat "${ENGLISH_WORDLIST}" \
         | parallel --env ENGLISH_DIR -j1 -N10000 'mv {} "${ENGLISH_DIR}"/A'
 }
@@ -82,15 +83,23 @@ trim_html_files() {
 }
 
 
+remove_encoded_slashes() {
+    find "${ENGLISH_DIR}"/A -iregex '.*a%2f.*' \
+        | parallel -j1 'A="$(echo {} | sed -r -e s/A%2f// -e s/%2f/-/g)"; mv {} "$A"'
+}
+
+
 prepare_prereqs() {
-    python3 -m pip install -t pylib beautifulsoup4
+    mkdir -p "${WIKTIONARY_DIR}"
+
+    python3 -m pip install -t pylib beautifulsoup4 lxml
 
     if [ ! -s "${ZIM_FILENAME}" ]
     then
         download_if_not_found
     fi
 
-    if [ ! -s "${WIKTIONARY_DIR}" ]
+    if [ ! -s "${EXTRACTED_DIR}" ]
     then
         decompress_zim
     fi
@@ -105,11 +114,12 @@ prepare_prereqs() {
         move_english_entries
     fi
 
-    find "${WIKTIONARY_DIR}"/ -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+    find "${EXTRACTED_DIR}"/ -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
 
     if [ ! -s "${ENGLISH_DIR}"/slim ]
     then
         trim_html_files
+        remove_encoded_slashes
     fi
 }
 
@@ -172,7 +182,7 @@ main() {
     get_synonyms
     get_parts_of_speech
     get_pronunciations
-    #get_definitions
+    get_definitions
 }
 
 
