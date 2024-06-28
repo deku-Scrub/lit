@@ -1,0 +1,5 @@
+DATA_DIR=data
+CACHE_DIR="${DATA_DIR}"/cache
+THESAURUS_DIR="${DATA_DIR}"/thesaurus
+
+N_JOBS=4
