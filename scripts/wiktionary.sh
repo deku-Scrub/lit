@@ -3,6 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 source scripts/env
+source scripts/utils.sh
 
 URL='https://download.kiwix.org/zim/wiktionary/wiktionary_en_all_nopic_2023-11.zim'
 WIKTIONARY_DIR="${DATA_DIR}"/wiktionary
@@ -91,6 +92,7 @@ remove_encoded_slashes() {
 
 prepare_prereqs() {
     mkdir -p "${WIKTIONARY_DIR}"
+    make_db
 
     python3 -m pip install -t pylib beautifulsoup4 lxml
 
@@ -179,10 +181,10 @@ get_definitions() {
 
 main() {
     prepare_prereqs
-    get_synonyms
-    get_parts_of_speech
-    get_pronunciations
-    get_definitions
+    #get_synonyms | insert_db syn tsv
+    #get_parts_of_speech | insert_db pos tsv
+    #get_pronunciations | insert_db pro tsv
+    get_definitions | sed -r 's/"/\\"/g' | insert_db def tsv
 }
 
 

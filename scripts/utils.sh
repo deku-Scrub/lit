@@ -19,36 +19,40 @@ download_file_if_not_found() {
 
 
 # ... | insert_db <data_type> <data_format>
-# `<data_type>` is one of `pos`, `syn`, `pro`.
+# `<data_type>` is one of `pos`, `syn`, `pro`, `def`.
 # `<data_format>` is one of `csv`, `tsv`.
 insert_db() {
     TABLE=''
-    if [ "${1}" -eq 'pro' ]
-    then
+    if [ "${1}" = 'pro' ]; then
         TABLE='Pronunciation'
-    elif [ "${1}" -eq 'syn' ]
-    then
+    elif [ "${1}" = 'syn' ]; then
         TABLE='Synonym'
-    elif [ "${1}" -eq 'pos' ]
-    then
+    elif [ "${1}" = 'pos' ]; then
         TABLE='PartOfSpeech'
+    elif [ "${1}" = 'def' ]; then
+        TABLE='Definitions'
     else
-        echo 'Invalid argument ('"${1}"').  Valid values are `syn`, `pos`, `pro`.'
+        echo 'Invalid argument ('"${1}"').  Valid values are `syn`, `pos`, `pro`, `def`.'
         exit
     fi
 
     FORMAT="${2}"
-    if [ "${FORMAT}" = 'csv' ] || [ "${FORMAT}" = 'tsv' ]
+    if [ ! "${FORMAT}" = 'csv' ] && [ ! "${FORMAT}" = 'tsv' ]
     then
         echo 'Invalid argument ('"${FORMAT}"').  Valid values are `csv`, `tsv`.'
         exit
     fi
+    if [ "${FORMAT}" = 'tsv' ]; then
+        FORMAT='tabs'
+    fi
 
+    set +e
     sqlite3 "${DBNAME}" '.mode '"${FORMAT}" ".import /dev/stdin "${TABLE}""
+    set -e
 }
 
 
 make_db() {
-    sqlite3 "${DBNAME}" scripts/db/create_tables.sql
-    sqlite3 "${DBNAME}" scripts/db/create_indexes.sql
+    sqlite3 "${DBNAME}" < scripts/db/create_tables.sql
+    sqlite3 "${DBNAME}" < scripts/db/create_indexes.sql
 }
