@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS Synonym (
 );
 
 
-CREATE VIRTUAL TABLE IF NOT EXISTS Definition USING fts5 (
+CREATE VIRTUAL TABLE IF NOT EXISTS Definitions USING fts5 (
     word UNINDEXED,
+    basename UNINDEXED,
+    order UNINDEXED,
     definition,
     tokenize = 'trigram case_sensitive 0 remove_diacritics 1'
 );
