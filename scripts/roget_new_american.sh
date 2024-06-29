@@ -5,6 +5,7 @@
 # * get_parts_of_speech_roget_new_american: takes no arguments
 
 source scripts/env
+source scripts/utils.sh
 
 THESAURUS_BASENAME=english-dictionary.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -73,8 +74,8 @@ get_parts_of_speech() {
 
 main() {
     prepare_prereqs
-    get_synonyms
-    get_parts_of_speech
+    get_synonyms | insert_db syn tsv
+    get_parts_of_speech | insert_db pos tsv
 }
 
 

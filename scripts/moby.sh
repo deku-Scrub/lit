@@ -20,8 +20,6 @@ get_words() {
 
 get_pronunciations() {
     get_words | python3 scripts/moby.py arpabet | sort -t1 -k1,1
-    #get_words | python3 moby.py arpabet | sort -t1 -k1,1 \
-        #| sqlite3 "${DBNAME}" '.mode csv' ".import /dev/stdin Pronunciation"
 }
 
 
@@ -34,6 +32,7 @@ extract_if_not_extracted() {
 
 prepare_prereqs() {
     mkdir -p "${MOBY_DIR}"
+    make_db
     download_file_if_not_found "${MOBY_URL}" "${MOBY_FILE}"
     extract_if_not_extracted
 }
@@ -59,51 +58,19 @@ get_parts_of_speech() {
     paste <(stream_parts_of_speech_words) <(stream_parts_of_speech) \
         | grep -Ev '^cowardic\s' \
         | python3 scripts/moby.py pos
-    #paste <(stream_parts_of_speech_words) <(stream_parts_of_speech) \
-        #| python3 moby.py pos \
-        #| sqlite3 "${DBNAME}" '.mode csv' ".import /dev/stdin PartOfSpeech"
 }
 
 
 get_synonyms() {
     sed -r 's/\r/\n/g' "${SYN_FILE}" | python3 scripts/moby.py syn
-    #sed -r 's/\r/\n/g' "${SYN_FILE}" | python3 moby.py syn \
-        #| sqlite3 "${DBNAME}" '.mode csv' ".import /dev/stdin Synonym"
-}
-
-
-make_db() {
-    sqlite3 "${DBNAME}" '
-CREATE TABLE IF NOT EXISTS Pronunciation (
-    word TEXT,
-    pronunciation TEXT,
-    type TEXT,
-    n_syllables INT,
-    primary key (word, pronunciation)
-);
-CREATE INDEX IF NOT EXISTS Pronunciation_word ON Pronunciation (word);
-
-CREATE TABLE IF NOT EXISTS PartOfSpeech (
-    word TEXT,
-    pos TEXT,
-    PRIMARY KEY (word, pos)
-);
-
-CREATE TABLE IF NOT EXISTS Synonym (
-    word1 TEXT,
-    word2 TEXT,
-    PRIMARY KEY (word1, word2)
-);
-    '
 }
 
 
 main() {
     prepare_prereqs
-    #make_db
-    get_pronunciations
-    get_parts_of_speech
-    get_synonyms
+    get_pronunciations | insert_db pro csv
+    get_parts_of_speech | insert_db pos csv
+    get_synonyms | insert_db syn csv
 }
 
 

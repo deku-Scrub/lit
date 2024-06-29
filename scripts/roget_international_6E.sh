@@ -3,6 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 source scripts/env
+source scripts/utils.sh
 
 THESAURUS_BASENAME=rogets-international-thesaurus-6th-edition-6nbsped-0060935448-9780060935443_compress.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -64,10 +65,11 @@ get_parts_of_speech() {
     preprocess | python3 scripts/roget_international_6E.py pos
 }
 
+
 main() {
     prepare_prereqs
-    get_synonyms
-    get_parts_of_speech
+    get_parts_of_speech | insert_db pos tsv
+    get_synonyms | insert_db syn tsv
 }
 
 

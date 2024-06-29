@@ -3,6 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 source scripts/env
+source scripts/utils.sh
 
 THESAURUS_BASENAME='The Oxford Thesaurus.pdf'
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -169,8 +170,8 @@ preprocess() {
 
 
 main() {
-    get_synonyms
-    get_parts_of_speech
+    get_synonyms | insert_db syn tsv
+    get_parts_of_speech | insert_db pos tsv
 }
 
 

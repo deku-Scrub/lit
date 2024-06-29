@@ -3,6 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 source scripts/env
+source scripts/utils.sh
 
 THESAURUS_BASENAME=roget_21st_century_3E.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -43,8 +44,8 @@ get_synonyms() {
 
 main() {
     prepare_prereqs
-    get_synonyms
-    get_parts_of_speech
+    get_parts_of_speech | insert_db pos tsv
+    get_synonyms | insert_db syn tsv
 }
 
 

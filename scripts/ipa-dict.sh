@@ -29,7 +29,7 @@ prepare_prereqs() {
 
 main() {
     prepare_prereqs
-    get_pronunciations
+    get_pronunciations | insert_db pro csv
 }
 
 
