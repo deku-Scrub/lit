@@ -20,6 +20,7 @@ get_pronunciations() {
 
 prepare_prereqs() {
     mkdir -p "${IPA_DIR}"
+    make_db
     download_file_if_not_found "${IPA_URL}" "${IPA_FILE}"
     if [[ ! -f "${IPA_CSV}" ]]; then
         unzip -d "${IPA_DIR}" "${IPA_FILE}"

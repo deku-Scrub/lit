@@ -13,6 +13,7 @@ THESAURUS_TXT="${CACHE_DIR}"/"${THESAURUS_BASENAME}".txt
 
 
 prepare_prereqs() {
+    make_db
     if [ ! -f "${THESAURUS_TXT}" ]
     then
         mkdir -p "${CACHE_DIR}"
