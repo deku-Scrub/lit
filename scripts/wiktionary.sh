@@ -181,9 +181,9 @@ get_definitions() {
 
 main() {
     prepare_prereqs
-    #get_synonyms | insert_db syn tsv
-    #get_parts_of_speech | insert_db pos tsv
-    #get_pronunciations | insert_db pro tsv
+    get_synonyms | insert_db syn tsv
+    get_parts_of_speech | insert_db pos tsv
+    get_pronunciations | insert_db pro tsv
     get_definitions | sed -r 's/"/\\"/g' | insert_db def tsv
 }
 
