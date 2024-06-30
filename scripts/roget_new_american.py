@@ -229,12 +229,22 @@ def main():
         for group in get_groups(sys.stdin):
             word = group['word']
             for pos_group in group['parts_of_speech']:
+                part_of_speech = pos_group['part_of_speech']
+                group_type = 'ant' if part_of_speech == 'antonym' else 'syn'
                 for synonym in pos_group['words']:
-                    print('{}\t{}'.format(word, synonym))
+                    print('\t'.join((
+                                    word,
+                                    synonym,
+                                    part_of_speech,
+                                    group_type,
+                                    )))
     elif sys.argv[1] == 'pos':
         for group in get_groups(sys.stdin):
             word = group['word']
             for pos_group in group['parts_of_speech']:
+                # TODO: don't ignore.  Have 'ant' be a cmdline arg.
+                if pos_group['part_of_speech'] == 'antonym':
+                    continue
                 print('{}\t{}'.format(word, pos_group['part_of_speech']))
 
 

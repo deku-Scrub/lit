@@ -4,7 +4,6 @@ import json
 
 INVALID_POS = (
         'phrase',
-        'antonym',
         'latin',
         )
 
@@ -173,9 +172,11 @@ def get_pairwise_synonyms(group):
         if pos_group['part_of_speech'] in INVALID_POS:
             continue
         words = pos_group['words']
+        part_of_speech = pos_group['part_of_speech']
+        group_type = 'ant' if part_of_speech == 'antonym' else 'syn'
         for j, word_1 in enumerate(words):
             for word_2 in words[(j+1) :]:
-                yield word_1, word_2
+                yield word_1, word_2, part_of_speech, group_type
 
 
 def get_single_synonyms(group):
@@ -183,8 +184,10 @@ def get_single_synonyms(group):
     for pos_group in group['parts_of_speech']:
         if pos_group['part_of_speech'] in INVALID_POS:
             continue
+        part_of_speech = pos_group['part_of_speech']
+        group_type = 'ant' if part_of_speech == 'antonym' else 'syn'
         for synonym in pos_group['words']:
-            yield word, synonym
+            yield word, synonym, part_of_speech, group_type
 
 
 def get_synonyms(lines):

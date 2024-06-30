@@ -36,7 +36,7 @@ def get_groups(lines):
             synonyms = (s.strip() for s in re.split('[,.;]+', sense))
             for synonym in synonyms:
                 if synonym:
-                    yield word, synonym, pos
+                    yield word, synonym, pos, 'syn'
 
 
 def main():

@@ -53,7 +53,7 @@ def pos():
 
 def syn():
     lines = (line.strip().split(',') for line in sys.stdin)
-    rows = ((r[0], rj) for r in lines for rj in r[1:])
+    rows = ((r[0], rj, '', 'syn') for r in lines for rj in r[1:])
     csv.writer(sys.stdout).writerows(rows)
 
 

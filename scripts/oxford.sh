@@ -10,7 +10,7 @@ THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
 
 
 get_synonyms() {
-    preprocess | python3 scripts/oxford_group.py | cut -f1,2
+    preprocess | python3 scripts/oxford_group.py
 }
 
 
@@ -170,6 +170,7 @@ preprocess() {
 
 
 main() {
+    make_db
     get_synonyms | insert_db syn tsv
     get_parts_of_speech | insert_db pos tsv
 }

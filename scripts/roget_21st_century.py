@@ -123,8 +123,10 @@ def get_entry_synonyms(entries):
         word = entry['word']
         pos_groups = entry['parts_of_speech']
         for pos_group in pos_groups:
+            part_of_speech = pos_group['part_of_speech']
+            group_type = 'ant' if part_of_speech == 'antonym' else 'syn'
             for synonym in pos_group['words']:
-                yield word, synonym
+                yield word, synonym, part_of_speech, group_type
 
 
 def get_entry_parts_of_speech(entries):
@@ -132,6 +134,9 @@ def get_entry_parts_of_speech(entries):
         word = entry['word']
         pos_groups = entry['parts_of_speech']
         for pos_group in pos_groups:
+            # TODO: don't ignore.  Have 'ant' be a cmdline arg.
+            if pos_group['part_of_speech'] == 'antonym':
+                continue
             yield word, pos_group['part_of_speech']
 
 

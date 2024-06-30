@@ -18,7 +18,7 @@ def find_nym_thesaurus(filenames, nym_type):
         ]
         for j, match_1 in enumerate(matches):
             for match_2 in matches[(j + 1):]:
-                print(match_1, match_2, sep='\t')
+                print(match_1, match_2, '', 'syn', sep='\t')
 
 
 def find_nym(filenames, nym_type):
@@ -35,7 +35,7 @@ def find_nym(filenames, nym_type):
         ]
         for j, match_1 in enumerate(matches):
             for match_2 in matches[(j + 1):]:
-                print(match_1, match_2, sep='\t')
+                print(match_1, match_2, '', 'syn', sep='\t')
 
 
 def main():
