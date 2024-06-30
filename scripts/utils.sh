@@ -26,7 +26,7 @@ insert_db() {
     if [ "${1}" = 'pro' ]; then
         TABLE='Pronunciation'
     elif [ "${1}" = 'syn' ]; then
-        TABLE='Synonym'
+        TABLE='SemanticLink'
     elif [ "${1}" = 'pos' ]; then
         TABLE='PartOfSpeech'
     elif [ "${1}" = 'def' ]; then
@@ -48,6 +48,12 @@ insert_db() {
 
     set +e
     sqlite3 "${DBNAME}" '.mode '"${FORMAT}" ".import /dev/stdin "${TABLE}""
+
+    if [ "${TABLE}" = 'Definitions' ]
+    then
+        sqlite3 "${DBNAME}" 'INSERT INTO DefinitionsFTS (word, definition) SELECT word, definition FROM Definitions'
+    fi
+
     set -e
 }
 

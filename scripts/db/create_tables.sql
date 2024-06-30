@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS Pronunciation (
     pronunciation TEXT,
     type TEXT,
     n_syllables INT,
-    primary key (word, pronunciation)
+    PRIMARY KEY (word, pronunciation)
 );
 
 
@@ -14,17 +14,25 @@ CREATE TABLE IF NOT EXISTS PartOfSpeech (
 );
 
 
-CREATE TABLE IF NOT EXISTS Synonym (
+CREATE TABLE IF NOT EXISTS SemanticLink (
     word1 TEXT,
     word2 TEXT,
-    PRIMARY KEY (word1, word2)
+    pos TEXT,
+    type TEXT,
+    PRIMARY KEY (word1, word2, pos, type)
 );
 
 
-CREATE VIRTUAL TABLE IF NOT EXISTS Definitions USING fts5 (
+CREATE TABLE IF NOT EXISTS Definitions (
+    word TEXT,
+    basename TEXT,
+    list_index INTEGER,
+    definition TEXT
+);
+
+
+CREATE VIRTUAL TABLE IF NOT EXISTS DefinitionsFTS USING fts5 (
     word UNINDEXED,
-    basename UNINDEXED,
-    order UNINDEXED,
     definition,
     tokenize = 'trigram case_sensitive 0 remove_diacritics 1'
 );
