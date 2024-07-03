@@ -24,16 +24,18 @@ def _escape_definitions(entries):
     `markupsafe.Markup` object.
     '''
     for (word, definition) in entries:
-        definition = markupsafe.Markup \
-                     .escape(definition) \
-                     .replace(
-                             'LIT_BOLDBEG_LIT',
-                             markupsafe.Markup('<b>'),
-                             ) \
-                     .replace(
-                             'LIT_BOLDEND_LIT',
-                             markupsafe.Markup('</b>'),
-                             )
+        definition = (
+                markupsafe.Markup
+                .escape(definition)
+                .replace(
+                    'LIT_BOLDBEG_LIT',
+                    markupsafe.Markup('<b>'),
+                    )
+                .replace(
+                    'LIT_BOLDEND_LIT',
+                    markupsafe.Markup('</b>'),
+                    )
+                )
         yield word, definition
 
 
