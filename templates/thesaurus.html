@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="title"><h1>{{ head_word }}</h1></div>
+<div id="pronunciations"><p>{{ thes_data.pronunciations|join(", ") }}</p></div>
+<div id="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+        {% if thes_data.definitions %}
+        <li><a href="#definitions">Definitions</a></li>
+        {% for entry in thes_data.entries %}
+            <li><a href="#{{ entry.toc_id }}">{{ entry.toc_title }}</a></li>
+        {% endfor %}
+        {% endif %}
+    </ol>
+</div>
+<div id="definitions">
+    {% if thes_data.definitions %}
+        <h2>Definitions</h2>
+        {% for entry in thes_data.definitions %}
+            <dl>
+                <dt><a href="/dictionary/{{ entry.word|replace("_", "") }}">{{ entry.word }}</a></dt>
+                {% for member in entry.members %}
+                    <dd> {{ member }} </dd>
+                {% endfor %}
+                <dd><a href="/dictionary/{{ entry.word|replace("_", "") }}">see more</a></dd>
+            </dl>
+        {% endfor %}
+    {% endif %}
+</div>
+<div id="entries">
+{% for entry in thes_data.entries %}
+    <section>
+        <h2 id="{{ entry.toc_id }}">{{ entry.toc_title }}</h2>
+        {% for word in entry.members %}
+            <span><a href="{{ url_for('thesaurus', word=word) }}">{{ word|replace("_", " ") }}</a></span>
+            &nbsp; {{ word_sep }} &nbsp;
+        {% endfor %}
+    </section>
+{% endfor %}
+</div>
+{% endblock %}

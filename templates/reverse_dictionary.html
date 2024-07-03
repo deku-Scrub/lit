@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<dl>
+    {% for entry in entries %}
+        <dt><a href="{{ url_for('dictionary', word=entry[0]) }}">{{ entry[0]|replace("_", " ") }}</a></dt>
+
+        <dd>{{ entry[1] }}</dd>
+    {% endfor %}
+</dl>
+<a href="{{ url_for('meaning', q=q, p=prev_page) }}">previous</a>
+<a href="{{ url_for('meaning', q=q, p=next_page) }}">next</a>
+{% endblock %}
