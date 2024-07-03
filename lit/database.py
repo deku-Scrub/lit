@@ -3,6 +3,7 @@ Functions for thesaurus/dictionary/etc. database queries.
 '''
 import sqlite3
 import json
+import re
 
 
 _MEANING_STMT = '''
@@ -72,10 +73,17 @@ def find_words(db, definition, page=0):
         matches the given definition.  Matches of the given definition
         will be surrounded by `LIT_BOLDBEG_LIT` and `LIT_BOLDEND_LIT`.
     '''
+    # The sqlite3 package doesn't properly escape input for fts
+    # match queries, so it has to be done manually.  Double quotes
+    # need to be escaped with an additional double quote, that is
+    # every `"` needs to be `""`.  Then each term must be surrounded
+    # by double quotes.
+    definition = definition.replace('"', '""')
+    definition = re.sub(r'(\S+)', r'"\1"', definition)
+
     rows = iter([])
     with db:
         stmt = _MEANING_STMT.format(offset=100 * page)
-        # TODO: crashes when `definition` contains a `'`, eg. `'puter`.
         rows = db.execute(stmt, (definition,))
     return rows
 
