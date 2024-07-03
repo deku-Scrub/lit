@@ -51,7 +51,7 @@ insert_db() {
 
     if [ "${TABLE}" = 'Definitions' ]
     then
-        sqlite3 "${DBNAME}" 'INSERT INTO DefinitionsFTS (word, definition) SELECT word, definition FROM Definitions'
+        sqlite3 "${DBNAME}" 'INSERT INTO DefinitionsFTS (word, definition) SELECT basename, definition FROM Definitions'
     fi
 
     set -e
