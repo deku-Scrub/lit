@@ -37,7 +37,7 @@ def _escape_definitions(entries):
         yield word, definition
 
 
-def make_endpoints(app):
+def make_endpoints(app, open_db):
     '''
     Attach endpoints to a Flask app object.
 
@@ -46,6 +46,12 @@ def make_endpoints(app):
     Args:
         app: a flask.Flask object
     '''
+
+
+    @app.before_request
+    def before_req():
+        open_db()
+
 
     @app.route('/search')
     def search():
@@ -68,7 +74,7 @@ def make_endpoints(app):
     def meaning():
         definition = flask.request.args.get('q', '')
         page = int(flask.request.args.get('p', '0'))
-        entries = lit.database.find_words(definition, page=page)
+        entries = lit.database.find_words(flask.g.db, definition, page=page)
         entries = _escape_definitions(entries)
         return flask.render_template(
                 'reverse_dictionary.html',
@@ -83,7 +89,7 @@ def make_endpoints(app):
 
     @app.route('/thesaurus/<word>')
     def thesaurus(word):
-        entries = lit.database.get_db_entries(word)
+        entries = lit.database.get_db_entries(flask.g.db, word)
         thes_data = lit.view_utils.get_thes_data(entries)
         is_text_client = 'w3m' in flask.request.headers['User-Agent']
         word_sep = ' | ' if is_text_client else ''

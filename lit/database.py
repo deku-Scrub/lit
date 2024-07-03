@@ -53,7 +53,7 @@ GROUP BY pos
 '''
 
 
-def find_words(definition, page=0):
+def find_words(db, definition, page=0):
     '''
     Find words whose definitions matches a given definition.
 
@@ -62,6 +62,7 @@ def find_words(definition, page=0):
     given meaning.
 
     Args:
+        db: an sqlite3.Connection instance.
         definition: meaning of the words to search for
         page (default 0): page of results to return.  Each
             page contains at most 100 results.
@@ -71,27 +72,25 @@ def find_words(definition, page=0):
         matches the given definition.  Matches of the given definition
         will be surrounded by `LIT_BOLDBEG_LIT` and `LIT_BOLDEND_LIT`.
     '''
-    # TODO: don't hardcode db path.
-    db = sqlite3.connect('data/lit.db')
     rows = iter([])
     with db:
         stmt = _MEANING_STMT.format(offset=100 * page)
+        # TODO: crashes when `definition` contains a `'`, eg. `'puter`.
         rows = db.execute(stmt, (definition,))
     return rows
 
 
-def get_db_entries(query):
+def get_db_entries(db, query):
     '''
     Get thesaurus entries.
 
     Args:
+        db: an sqlite3.Connection instance.
         query: word for which thesaurus entries are searched.
 
     Returns:
         Iterable of thesaurus entries.
     '''
-    # TODO: don't hardcode db path.
-    db = sqlite3.connect('data/lit.db')
     entries = iter([])
     with db:
         rows = db.execute(_STMT, (query,) * 4)
