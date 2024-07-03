@@ -37,7 +37,7 @@ def _escape_definitions(entries):
         yield word, definition
 
 
-def make_endpoints(app, open_db):
+def make_endpoints(app):
     '''
     Attach endpoints to a Flask app object.
 
@@ -46,11 +46,6 @@ def make_endpoints(app, open_db):
     Args:
         app: a flask.Flask object
     '''
-
-
-    @app.before_request
-    def before_req():
-        open_db()
 
 
     @app.route('/search')
@@ -105,7 +100,7 @@ def make_endpoints(app, open_db):
 
     @app.route('/dictionary/<word>')
     def dictionary(word):
-        filename = 'data/wiktionary/english/A/' + word
+        filename = os.path.join(app.config['DICTIONARY_DIR'], word)
         if not os.path.exists(filename):
             return 'word not found'
         html = flask.render_template(
