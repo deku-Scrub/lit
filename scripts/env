@@ -3,8 +3,7 @@ ROOT_DIR="${SCRIPT_DIR}"/..
 LOG_DIR="${ROOT_DIR}"/logs
 CONFIG_FILENAME="${ROOT_DIR}"/config.json
 DEPS_DIR="${ROOT_DIR}"/dependencies
-HOST="$(jq '.host' "${CONFIG_FILENAME}" 2>/dev/null || echo 127.0.0.1)"
-PORT="$(jq '.port' "${CONFIG_FILENAME}" 2>/dev/null || echo 11117)"
+BIN_DIR="${ROOT_DIR}"/bin
 
 DATA_DIR="${ROOT_DIR}"/data
 CACHE_DIR="${DATA_DIR}"/cache
@@ -14,3 +13,5 @@ DB_DUMP="${DATA_DIR}"/db.sql.bz2
 DEPS_ARCHIVE="${DATA_DIR}"/dependencies.tar.bz2
 
 N_JOBS=4
+HOST="$(jq '.host' "${CONFIG_FILENAME}" 2>/dev/null || echo 127.0.0.1)"
+PORT="$(jq '.port' "${CONFIG_FILENAME}" 2>/dev/null || echo 11117)"
