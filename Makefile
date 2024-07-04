@@ -6,3 +6,6 @@ dbdump:
 
 executables:
 	bash scripts/make_executables.sh
+
+release: deps dbdump executables
+	bash scripts/commit_release.sh
