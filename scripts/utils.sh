@@ -2,7 +2,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
 
 
 download_file_if_not_found() {
@@ -51,10 +52,15 @@ insert_db() {
 
     if [ "${TABLE}" = 'Definitions' ]
     then
-        sqlite3 "${DBNAME}" 'INSERT INTO DefinitionsFTS (word, definition) SELECT basename, definition FROM Definitions'
+        populate_definitions_fts
     fi
 
     set -e
+}
+
+
+populate_definitions_fts() {
+    sqlite3 "${DBNAME}" 'INSERT INTO DefinitionsFTS (word, definition) SELECT basename, definition FROM Definitions'
 }
 
 
