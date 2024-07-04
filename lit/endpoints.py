@@ -120,3 +120,7 @@ def make_endpoints(app):
         #response = flask.Response(html)
         #response.content_encoding = 'gzip'
         #return response
+
+    @app.route('/')
+    def index():
+        return flask.render_template('base.html')
