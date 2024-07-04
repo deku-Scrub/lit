@@ -5,8 +5,26 @@ IFS=$'\n\t'
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
+
+
+create_db() {
+    if [ ! -s "${DBNAME}" ]
+    then
+        echo 'Database not found.  Attempting to create it.'
+        sleep 1
+
+        set +e
+        sqlite3 "${DBNAME}" < <(bunzip2 -c "${DB_DUMP}")
+        populate_definitions_fts
+        set -e
+    fi
+}
+
 
 main() {
+    create_db
+
     LOG_FILENAME="${LOG_DIR}"/lit_"$(date -Iseconds)".log
     if [ ! -d "${LOG_DIR}" ]
     then
