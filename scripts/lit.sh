@@ -55,10 +55,13 @@ start_server() {
     if [ -z "$(is_server_running)" ]
     then
         bash "${SCRIPT_DIR}"/run_server.sh &
+        J=0
         while [ -z "$(is_server_running)" ]
         do
-            echo 'waiting for server to start...'
+            echo -n "$(jq -rn '"\rwaiting for server to start" + "   "')"
+            echo -n "$(jq -rn '"\rwaiting for server to start" + "."*'"$J")"
             sleep 1
+            J="$(((J + 1) % 4))"
         done
     fi
 }
