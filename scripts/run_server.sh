@@ -7,6 +7,13 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 source "${SCRIPT_DIR}"/env
 source "${SCRIPT_DIR}"/utils.sh
 
+# Ignore ctrl-z.  When the server is started from the `lit` script
+# and that script is stopped with ctrl-z, then the server is also
+# stopped, preventing any other clients from sending requests.  This
+# only happens when the server is started.  If `lit` is run again
+# after the server is already running, ctrl-z does not affect the
+# server.
+trap '' SIGTSTP
 
 prepare_prereqs() {
     if [ ! -d "${DEPS_DIR}" ]
