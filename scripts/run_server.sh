@@ -8,10 +8,16 @@ source "${SCRIPT_DIR}"/env
 source "${SCRIPT_DIR}"/utils.sh
 
 
-create_db() {
+prepare_prereqs() {
+    if [ ! -d "${DEPS_DIR}" ]
+    then
+        tar -xf "${DEPS_ARCHIVE}"
+    fi
+
     if [ ! -s "${DBNAME}" ]
     then
-        echo 'Database not found.  Attempting to create it.'
+        echo 'Database not found.  Attempting to create it.  This takes a few minutes. '
+
         sleep 1
 
         set +e
@@ -23,7 +29,7 @@ create_db() {
 
 
 main() {
-    create_db
+    prepare_prereqs
 
     LOG_FILENAME="${LOG_DIR}"/lit_"$(date -Iseconds)".log
     if [ ! -d "${LOG_DIR}" ]

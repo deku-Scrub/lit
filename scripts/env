@@ -11,5 +11,6 @@ CACHE_DIR="${DATA_DIR}"/cache
 THESAURUS_DIR="${DATA_DIR}"/thesaurus
 DBNAME="${DATA_DIR}"/lit.db
 DB_DUMP="${DATA_DIR}"/db.sql.bz2
+DEPS_ARCHIVE="${DATA_DIR}"/dependencies.tar.bz2
 
 N_JOBS=4
