@@ -2,9 +2,9 @@
 <form action="{{ url_for('search') }}" method="GET">
     <input type="search" id="search" name="q" minlength="1" value="{{ search_value }}" required>
     <select name="t" id="type">
-        <option {% if select_thes %} selected {% endif %} value="0">thesaurus</option>
-        <option {% if select_dict %} selected {% endif %} value="1">dictionary</option>
-        <option {% if select_rev %} selected {% endif %} value="2">reverse dictionary</option>
+        <option {% if select_thes %} selected {% endif %} value="t">thesaurus</option>
+        <option {% if select_dict %} selected {% endif %} value="d">dictionary</option>
+        <option {% if select_rev %} selected {% endif %} value="r">reverse dictionary</option>
     </select>
     <input type="submit" value="search">
 </form>

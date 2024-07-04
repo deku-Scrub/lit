@@ -53,15 +53,15 @@ def make_endpoints(app):
     @app.route('/search')
     def search():
         word = flask.request.args.get('q', '')
-        search_type = flask.request.args.get('t', '0')
+        search_type = flask.request.args.get('t', 't')
 
-        if search_type == '0':
+        if search_type == 't':
             return flask.redirect(flask.url_for('thesaurus', word=word))
-        elif search_type == '1':
+        elif search_type == 'd':
             return flask.redirect(
                     flask.url_for('dictionary', word=word.replace(' ', '_'))
                     )
-        elif search_type == '2':
+        elif search_type == 'r':
             return flask.redirect(flask.url_for('meaning', q=word))
 
         flask.abort(404)
