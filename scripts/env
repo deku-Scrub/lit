@@ -6,10 +6,10 @@ DEPS_DIR="${ROOT_DIR}"/dependencies
 HOST="$(jq '.host' "${CONFIG_FILENAME}" 2>/dev/null || echo 127.0.0.1)"
 PORT="$(jq '.port' "${CONFIG_FILENAME}" 2>/dev/null || echo 11117)"
 
-DATA_DIR=data
+DATA_DIR="${ROOT_DIR}"/data
 CACHE_DIR="${DATA_DIR}"/cache
 THESAURUS_DIR="${DATA_DIR}"/thesaurus
 DBNAME="${DATA_DIR}"/lit.db
-
+DB_DUMP="${DATA_DIR}"/db.sql.bz2
 
 N_JOBS=4
