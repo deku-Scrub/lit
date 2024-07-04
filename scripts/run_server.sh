@@ -15,6 +15,7 @@ source "${SCRIPT_DIR}"/utils.sh
 # server.
 trap '' SIGTSTP
 
+
 prepare_prereqs() {
     if [ ! -d "${DEPS_DIR}" ]
     then

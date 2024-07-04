@@ -9,3 +9,6 @@ executables:
 
 release: deps dbdump executables
 	bash scripts/commit_release.sh
+
+reqs:
+	bash scripts/server_prereqs.sh
