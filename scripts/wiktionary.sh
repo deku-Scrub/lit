@@ -2,8 +2,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+# Export for parallel.
+export SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 URL='https://download.kiwix.org/zim/wiktionary/wiktionary_en_all_nopic_2023-11.zim'
 WIKTIONARY_DIR="${DATA_DIR}"/wiktionary
@@ -12,7 +14,7 @@ EXTRACTED_DIR="${WIKTIONARY_DIR}"/extracted
 ENGLISH_WORDLIST="${WIKTIONARY_DIR}"/english_filenames.txt
 export ENGLISH_DIR="${WIKTIONARY_DIR}"/english # Export for parallel.
 MALFORMED_DIR="${WIKTIONARY_DIR}"/malformed_names
-PARTS_OF_SPEECH_PATTERNS=scripts/parts_of_speech.txt
+PARTS_OF_SPEECH_PATTERNS="${SCRIPT_DIR}"/parts_of_speech.txt
 
 
 download_if_not_found() {
@@ -94,7 +96,7 @@ prepare_prereqs() {
     mkdir -p "${WIKTIONARY_DIR}"
     make_db
 
-    python3 -m pip install -t pylib beautifulsoup4 lxml
+    python3 -m pip install -t "${DEPS_DIR}"/python -r "${ROOT_DIR}"/requirements.txt
 
     if [ ! -s "${ZIM_FILENAME}" ]
     then
@@ -149,9 +151,9 @@ get_parts_of_speech() {
 
 get_synonyms() {
     find "${ENGLISH_DIR}"/A -type f \
-        | parallel --pipe -N10000 -j"${N_JOBS}" 'python3 scripts/wiktionary_nyms.py syn'
+        | parallel --env SCRIPT_DIR --pipe -N10000 -j"${N_JOBS}" 'python3 "${SCRIPT_DIR}"/wiktionary_nyms.py syn'
     find "${ENGLISH_DIR}"/A -type f -regex '.*Thesaurus.*' \
-        | parallel --pipe -N10000 -j"${N_JOBS}" 'python3 scripts/wiktionary_nyms.py thes_syn'
+        | parallel --env SCRIPT_DIR --pipe -N10000 -j"${N_JOBS}" 'python3 "${SCRIPT_DIR}"/wiktionary_nyms.py thes_syn'
 }
 
 
@@ -173,9 +175,9 @@ get_pronunciations() {
 
 
 get_definitions() {
-    export PYTHONPATH=pylib
+    export PYTHONPATH="${DEPS_DIR}"/python
     find "${ENGLISH_DIR}"/A -type f \
-        | parallel --pipe -N10000 -j"${N_JOBS}" 'python3 scripts/wiktionary_definitions.py'
+        | parallel --env PYTHONPATH --env SCRIPT_DIR --pipe -N10000 -j"${N_JOBS}" 'python3 "${SCRIPT_DIR}"/wiktionary_definitions.py'
 }
 
 

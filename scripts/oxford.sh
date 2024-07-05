@@ -2,20 +2,21 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 THESAURUS_BASENAME='The Oxford Thesaurus.pdf'
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
 
 
 get_synonyms() {
-    preprocess | python3 scripts/oxford_group.py
+    preprocess | python3 "${SCRIPT_DIR}"/oxford_group.py
 }
 
 
 get_parts_of_speech() {
-    preprocess | python3 scripts/oxford_group.py | cut -f1,3
+    preprocess | python3 "${SCRIPT_DIR}"/oxford_group.py | cut -f1,3
 }
 
 
@@ -159,9 +160,9 @@ preprocess() {
         | sed -r 's/def\.//g' \
         | sed -r -e 's/^#below$/below./' \
                 -e 's/#completely blank/completely blank./' \
-        | python3 scripts/oxford_join.py \
+        | python3 "${SCRIPT_DIR}"/oxford_join.py \
         | enclose_crossref \
-        | python3 scripts/oxford.py pos \
+        | python3 "${SCRIPT_DIR}"/oxford.py pos \
         | enclose_phrase \
         | enclose_label \
         | remove_elements \

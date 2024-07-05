@@ -2,8 +2,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 THESAURUS_BASENAME=rogets-international-thesaurus-6th-edition-6nbsped-0060935448-9780060935443_compress.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -58,12 +59,12 @@ preprocess() {
 
 
 get_synonyms() {
-    preprocess | python3 scripts/roget_international_6E.py syn
+    preprocess | python3 "${SCRIPT_DIR}"/roget_international_6E.py syn
 }
 
 
 get_parts_of_speech() {
-    preprocess | python3 scripts/roget_international_6E.py pos
+    preprocess | python3  "${SCRIPT_DIR}"/roget_international_6E.py pos
 }
 
 

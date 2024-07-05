@@ -2,8 +2,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 MOBY_DIR="${DATA_DIR}"/moby
 MOBY_FILE="${MOBY_DIR}"/moby.tar.Z
@@ -19,7 +20,7 @@ get_words() {
 
 
 get_pronunciations() {
-    get_words | python3 scripts/moby.py arpabet | sort -t1 -k1,1
+    get_words | python3 "${SCRIPT_DIR}"/moby.py arpabet | sort -t1 -k1,1
 }
 
 
@@ -31,7 +32,11 @@ extract_if_not_extracted() {
 
 
 prepare_prereqs() {
-    mkdir -p "${MOBY_DIR}"
+    if [ ! -d "${MOBY_DIR}" ]
+    then
+        mkdir -p "${MOBY_DIR}"
+    fi
+
     make_db
     download_file_if_not_found "${MOBY_URL}" "${MOBY_FILE}"
     extract_if_not_extracted
@@ -57,12 +62,12 @@ stream_parts_of_speech() {
 get_parts_of_speech() {
     paste <(stream_parts_of_speech_words) <(stream_parts_of_speech) \
         | grep -Ev '^cowardic\s' \
-        | python3 scripts/moby.py pos
+        | python3 "${SCRIPT_DIR}"/moby.py pos
 }
 
 
 get_synonyms() {
-    sed -r 's/\r/\n/g' "${SYN_FILE}" | python3 scripts/moby.py syn
+    sed -r 's/\r/\n/g' "${SYN_FILE}" | python3 "${SCRIPT_DIR}"/moby.py syn
 }
 
 

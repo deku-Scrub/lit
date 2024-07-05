@@ -1,11 +1,8 @@
 #!/bin/bash
-#
-# Exposes the following functions:
-# * get_synonyms_roget_new_american: takes no arguments
-# * get_parts_of_speech_roget_new_american: takes no arguments
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 THESAURUS_BASENAME=english-dictionary.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -64,12 +61,12 @@ preprocess() {
 
 
 get_synonyms() {
-    preprocess | python3 scripts/roget_new_american.py syn
+    preprocess | python3 "${SCRIPT_DIR}"/roget_new_american.py syn
 }
 
 
 get_parts_of_speech() {
-    preprocess | python3 scripts/roget_new_american.py pos
+    preprocess | python3  "${SCRIPT_DIR}"/roget_new_american.py pos
 }
 
 

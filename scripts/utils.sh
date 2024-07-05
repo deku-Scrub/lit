@@ -65,6 +65,6 @@ populate_definitions_fts() {
 
 
 make_db() {
-    sqlite3 "${DBNAME}" < scripts/db/create_tables.sql
-    sqlite3 "${DBNAME}" < scripts/db/create_indexes.sql
+    sqlite3 "${DBNAME}" < "${SCRIPT_DIR}"/db/create_tables.sql
+    sqlite3 "${DBNAME}" <  "${SCRIPT_DIR}"/db/create_indexes.sql
 }

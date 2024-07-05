@@ -2,8 +2,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 THESAURUS_BASENAME=roget_21st_century_3E.pdf
 THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
@@ -15,8 +16,8 @@ prepare_prereqs() {
     if [ ! -f "${THESAURUS_TXT}" ]
     then
         mkdir -p "${CACHE_DIR}"
-        python3 -m pip install -t pylib pdfminer.six
-        PYTHONPATH=pylib/ pylib/bin/pdf2txt.py -o - -t html -Y loose "${THESAURUS_PDF}" > "${THESAURUS_TXT}"
+        python3 -m pip install -t "${DEPS_DIR}"/python -r "${ROOT_DIR}"/requirements.txt
+        PYTHONPATH="${DEPS_DIR}"/python "${DEPS_DIR}"/python/bin/pdf2txt.py -o - -t html -Y loose "${THESAURUS_PDF}" > "${THESAURUS_TXT}"
     fi
 }
 
@@ -34,12 +35,12 @@ preprocess() {
 
 
 get_parts_of_speech() {
-    preprocess | python3 scripts/roget_21st_century.py pos
+    preprocess | python3 "${SCRIPT_DIR}"/roget_21st_century.py pos
 }
 
 
 get_synonyms() {
-    preprocess | python3 scripts/roget_21st_century.py syn
+    preprocess | python3  "${SCRIPT_DIR}"/roget_21st_century.py syn
 }
 
 

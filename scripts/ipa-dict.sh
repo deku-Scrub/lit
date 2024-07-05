@@ -2,8 +2,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-source scripts/env
-source scripts/utils.sh
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+source "${SCRIPT_DIR}"/env
+source "${SCRIPT_DIR}"/utils.sh
 
 IPA_DIR="${DATA_DIR}"/ipa-dict
 IPA_FILE="${IPA_DIR}"/csv.zip
@@ -12,7 +13,7 @@ IPA_URL='https://github.com/open-dict-data/ipa-dict/releases/download/1.0/csv.zi
 
 
 get_pronunciations() {
-    cat "${IPA_CSV}" | python3 scripts/moby.py ipa | sort -t, -k1,1
+    cat "${IPA_CSV}" | python3 "${SCRIPT_DIR}"/moby.py ipa | sort -t, -k1,1
     #cat "${IPA_CSV}" | python3 scripts/moby.py ipa | sort -t, -k1,1 \
         #| sqlite3 "${DBNAME}" '.mode csv' ".import /dev/stdin Pronunciation"
 }
