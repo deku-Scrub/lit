@@ -1,0 +1,52 @@
+# Workflows for processing Moby data.
+# All the phony targets are user facing targets that can be called with
+# `make`.  The non-phony targets are considered private and should not
+# be used with `make`.
+DATA_DIR = data
+MOBY_URL = https://ai1.ai.uga.edu/ftplib/natural-language/moby/moby.tar.Z
+DB_NAME = $(DATA_DIR)/lit.db
+MOBY_DIR = $(DATA_DIR)/moby
+MOBY_FILE = $(MOBY_DIR)/moby.tar.Z
+EXTRACT_DIR = $(MOBY_DIR)/share
+CMUDICT = $(EXTRACT_DIR)/ilash/common/Packages/Moby/mpron/cmudict0.3
+POS_FILE = $(EXTRACT_DIR)/ilash/common/Packages/Moby/mpos/mobyposi.i
+SYN_FILE = $(EXTRACT_DIR)/ilash/common/Packages/Moby/mthes/mobythes.aur
+PRONUNCIATIONS_CSV = $(MOBY_DIR)/pronunciations.csv
+PARTS_OF_SPEECH_CSV = $(MOBY_DIR)/parts_of_speech.csv
+SYNONYM_CSV = $(MOBY_DIR)/synonyms.csv
+
+.PHONY: all
+all: $(DB_NAME)
+
+.PHONY: db
+db: $(DB_NAME)
+
+.PHONY: pos
+pos: $(PARTS_OF_SPEECH_CSV)
+
+.PHONY: pro
+pro: $(PRONUNCIATIONS_CSV)
+
+.PHONY: syn
+syn: $(SYNONYM_CSV)
+
+$(MOBY_FILE): scripts/download.sh
+	bash scripts/download.sh $(MOBY_URL) $@ && touch $(MOBY_FILE)
+
+$(EXTRACT_DIR): $(MOBY_FILE)
+	tar -C $(MOBY_DIR) -xf $(MOBY_FILE) && touch $@
+
+$(PRONUNCIATIONS_CSV): $(EXTRACT_DIR) scripts/moby/moby.py
+	bash scripts/moby/pronunciations.sh $(CMUDICT) $@
+
+$(PARTS_OF_SPEECH_CSV): $(EXTRACT_DIR) scripts/moby/parts_of_speech.sh
+	bash scripts/moby/parts_of_speech.sh $(POS_FILE) $@
+
+$(SYNONYM_CSV): $(EXTRACT_DIR) scripts/moby/synonyms.sh
+	bash scripts/moby/synonyms.sh $(SYN_FILE) $@
+
+$(DB_NAME): $(SYNONYM_CSV) $(PARTS_OF_SPEECH_CSV) $(PRONUNCIATIONS_CSV) scripts/db/*
+	bash scripts/db/insert_db.sh $@ $(SYNONYM_CSV) syn csv; \
+	bash scripts/db/insert_db.sh $@ $(PARTS_OF_SPEECH_CSV) pos csv; \
+	bash scripts/db/insert_db.sh $@ $(PRONUNCIATIONS_CSV) pro csv; \
+	touch $(DB_NAME)

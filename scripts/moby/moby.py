@@ -2,17 +2,6 @@ import sys
 import csv
 
 
-def clean_pronunciation():
-    for line in sys.stdin:
-        row = line.strip().split(',')
-        word, ipas = row[0].strip(), row[1:]
-        ipas[0] = ipas[0][1:] if ipas[0].startswith('"') else ipas[0]
-        ipas[-1] = ipas[-1][:-1] if ipas[-1].endswith('"') else ipas[-1]
-        for ipa in ipas:
-            line_str = '"{}","{}","ipa","0"'.format(word, ipa.strip())
-            print(line_str)
-
-
 def count_syllables():
     for line in sys.stdin:
         row = line.strip().split()
@@ -60,8 +49,6 @@ def syn():
 def main():
     if sys.argv[1] == 'arpabet':
         count_syllables()
-    elif sys.argv[1] == 'ipa':
-        clean_pronunciation()
     elif sys.argv[1] == 'pos':
         pos()
     elif sys.argv[1] == 'syn':
