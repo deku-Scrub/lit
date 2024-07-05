@@ -78,8 +78,15 @@ move_english_entries() {
 
 trim_html_files() {
     mkdir -p "${ENGLISH_DIR}"/slim
+    export PYTHONPATH="${DEPS_DIR}"/python
     find "${ENGLISH_DIR}"/A -type f \
-        | parallel -j"${N_JOBS}" --env ENGLISH_DIR 'xmllint --xpath "//*[@id=\"English\"]/.." --html {} > "${ENGLISH_DIR}"/slim/{/} 2>/dev/null'
+        | parallel -j"${N_JOBS}" \
+            --env ENGLISH_DIR \
+            --env SCRIPT_DIR \
+            --env PYTHONPATH \
+            --pipe \
+            --N10000 \
+            'python3 "${SCRIPT_DIR}"/wiktionary_trim.py "${ENGLISH_DIR}"/slim'
     rm -r "${ENGLISH_DIR}"/A
     mv "${ENGLISH_DIR}"/slim "${ENGLISH_DIR}"/A
     mkdir -p "${ENGLISH_DIR}"/slim
