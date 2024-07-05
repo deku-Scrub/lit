@@ -19,7 +19,7 @@ trap '' SIGTSTP
 prepare_prereqs() {
     if [ ! -d "${DEPS_DIR}" ]
     then
-        tar -xf "${DEPS_ARCHIVE}"
+        tar -C "${ROOT_DIR}" -xf "${DEPS_ARCHIVE}"
     fi
 
     if [ ! -s "${DBNAME}" ]
