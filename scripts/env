@@ -4,6 +4,7 @@ LOG_DIR="${ROOT_DIR}"/logs
 CONFIG_FILENAME="${ROOT_DIR}"/config.json
 DEPS_DIR="${ROOT_DIR}"/dependencies
 BIN_DIR="${ROOT_DIR}"/bin
+DIST_DIR="${ROOT_DIR}"/dist
 
 DATA_DIR="${ROOT_DIR}"/data
 CACHE_DIR="${DATA_DIR}"/cache
