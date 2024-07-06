@@ -40,8 +40,13 @@ def get_groups(lines):
 
 
 def main():
-    for group in get_groups(sys.stdin):
-        print('\t'.join(group))
+    if len(sys.argv) != 2:
+        print('Usage: python3 oxford_group.py <input_txt>')
+        exit(1)
+
+    with open(sys.argv[1]) as fis:
+        for group in get_groups(fis):
+            print('\t'.join(group))
 
 
 if __name__ == '__main__':

@@ -3,28 +3,6 @@ set -euo pipefail
 IFS=$'\n\t'
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-source "${SCRIPT_DIR}"/env
-source "${SCRIPT_DIR}"/utils.sh
-
-THESAURUS_BASENAME='The Oxford Thesaurus.pdf'
-THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
-
-
-get_synonyms() {
-    preprocess | python3 "${SCRIPT_DIR}"/oxford_group.py
-}
-
-
-get_parts_of_speech() {
-    preprocess | python3 "${SCRIPT_DIR}"/oxford_group.py | cut -f1,3
-}
-
-
-enclose_crossref() {
-    sed -r 's/(See [0-9]+)\.(\(.\))/\1 \2,/g' \
-        | sed -r 's/([0-9]+)\.([0-9]+)/\1*\2/g' \
-        | sed -r 's/(See [a-z-]+\.)|(See[^.:]+((above)|(below))[.:])|(\(See also[^)]+\))|(See [a-z]+[, 0-9]+\.)|(See +[0-9]+(\(.\))?\.)|(See ineffectual and ineffective\.)|(See access,)/{&}/g'
-}
 
 
 label_senses() {
@@ -45,6 +23,22 @@ remove_elements() {
         -e 's/<[^>]+>/ /g' \
         -e 's/\{[^}]+\}/ /g' \
         -e 's/\[[^]]+\]/ /g'
+}
+
+
+enclose_crossref() {
+    sed -r 's/(See [0-9]+)\.(\(.\))/\1 \2,/g' \
+        | sed -r 's/([0-9]+)\.([0-9]+)/\1*\2/g' \
+        | sed -r 's/(See [a-z-]+\.)|(See[^.:]+((above)|(below))[.:])|(\(See also[^)]+\))|(See [a-z]+[, 0-9]+\.)|(See +[0-9]+(\(.\))?\.)|(See ineffectual and ineffective\.)|(See access,)/{&}/g'
+}
+
+
+enclose_phrase() {
+    sed -r 's/:\s*(['"'"'A-Z-][^.!?]*[.!?]+\s*)+/<&>/g' \
+        | sed -r 's/<:/</g' \
+        | sed -r 's/:\s*([0-9][^.!?]+[.!?]+\s*)/<&>/g' \
+        | sed -r 's/<:/</g' \
+        | sed -r 's/\s*>/>/g'
 }
 
 
@@ -80,16 +74,9 @@ enclose_label() {
 }
 
 
-enclose_phrase() {
-    sed -r 's/:\s*(['"'"'A-Z-][^.!?]*[.!?]+\s*)+/<&>/g' \
-        | sed -r 's/<:/</g' \
-        | sed -r 's/:\s*([0-9][^.!?]+[.!?]+\s*)/<&>/g' \
-        | sed -r 's/<:/</g' \
-        | sed -r 's/\s*>/>/g'
-}
+convert() {
+    local THESAURUS_PDF="${1}" 
 
-
-preprocess() {
     pdftotext -layout "${THESAURUS_PDF}" - \
         | sed -r \
         -e 's/\x0c/\n\n/g' \
@@ -171,10 +158,21 @@ preprocess() {
 
 
 main() {
-    make_db
-    get_synonyms | insert_db syn tsv
-    get_parts_of_speech | insert_db pos tsv
+    local THESAURUS_TXT="${2}"
+
+    if [ ! -d "$(dirname -- "${THESAURUS_TXT}")" ]
+    then
+        mkdir -p "$(dirname -- "${THESAURUS_TXT}")"
+    fi
+
+    convert "${@}" > "${THESAURUS_TXT}"
 }
 
 
-main
+if [ "${#@}" -ne 2 ]
+then
+    echo 'Usage: bash pdf2txt.sh <input_pdf> <output_txt>'
+    exit 1
+fi
+
+main "${@}"
