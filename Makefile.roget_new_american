@@ -1,0 +1,38 @@
+# Workflows for processing Roget New American data.
+# All the phony targets are user facing targets that can be called with
+# `make`.  The non-phony targets are considered private and should not
+# be used with `make`.
+DATA_DIR = data
+DEPS_DIR = dependencies
+DB_NAME = $(DATA_DIR)/lit.db
+ROGET_NEW_AMERICAN_DIR = $(DATA_DIR)/roget_new_american
+THESAURUS_PDF = $(DEPS_DIR)/pdf/english-dictionary.pdf
+THESAURUS_TXT = $(ROGET_NEW_AMERICAN_DIR)/roget_new_american.txt
+PARTS_OF_SPEECH_TSV = $(ROGET_NEW_AMERICAN_DIR)/parts_of_speech.tsv
+SYNONYM_TSV = $(ROGET_NEW_AMERICAN_DIR)/synonyms.tsv
+
+.PHONY: all
+all: $(DB_NAME)
+
+.PHONY: db
+db: $(DB_NAME)
+
+.PHONY: pos
+pos: $(PARTS_OF_SPEECH_TSV)
+
+.PHONY: syn
+syn: $(SYNONYM_TSV)
+
+$(THESAURUS_TXT): scripts/roget_new_american/pdf2txt.sh
+	bash $< $(THESAURUS_PDF) $@
+
+$(PARTS_OF_SPEECH_TSV): $(THESAURUS_TXT) scripts/roget_new_american/*
+	bash scripts/roget_new_american/create_tsv.sh $< pos $@
+
+$(SYNONYM_TSV): $(THESAURUS_TXT) scripts/roget_new_american/*
+	bash scripts/roget_new_american/create_tsv.sh $< syn $@
+
+$(DB_NAME): $(SYNONYM_TSV) $(PARTS_OF_SPEECH_TSV) scripts/db/*
+	bash scripts/db/insert_db.sh $@ $(SYNONYM_TSV) syn tsv; \
+	bash scripts/db/insert_db.sh $@ $(PARTS_OF_SPEECH_TSV) pos tsv; \
+	touch $(DB_NAME)

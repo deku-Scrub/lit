@@ -1,25 +1,11 @@
 #!/bin/bash
-
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-source "${SCRIPT_DIR}"/env
-source "${SCRIPT_DIR}"/utils.sh
-
-THESAURUS_BASENAME=english-dictionary.pdf
-THESAURUS_PDF="${THESAURUS_DIR}"/"${THESAURUS_BASENAME}"
-THESAURUS_TXT="${CACHE_DIR}"/"${THESAURUS_BASENAME}".txt
-
-
-prepare_prereqs() {
-    make_db
-    if [ ! -f "${THESAURUS_TXT}" ]
-    then
-        mkdir -p "${CACHE_DIR}"
-        pdftotext "${THESAURUS_PDF}" - > "${THESAURUS_TXT}"
-    fi
-}
+set -euo pipefail
+IFS=$'\n\t'
 
 
 preprocess() {
+    local THESAURUS_TXT="${1}"
+
     sed -r -e 's/\x0c/\n/g' "${THESAURUS_TXT}" \
         | sed -r -e 's/ﬂ/fl/g' \
         | sed -r -e 's/ﬁ/fi/g' \
@@ -60,21 +46,17 @@ preprocess() {
 }
 
 
-get_synonyms() {
-    preprocess | python3 "${SCRIPT_DIR}"/roget_new_american.py syn
-}
-
-
-get_parts_of_speech() {
-    preprocess | python3  "${SCRIPT_DIR}"/roget_new_american.py pos
-}
-
-
 main() {
-    prepare_prereqs
-    get_synonyms | insert_db syn tsv
-    get_parts_of_speech | insert_db pos tsv
+    local THESAURUS_TXT="${1}"
+
+    preprocess "${THESAURUS_TXT}"
 }
 
 
-main
+if [ "${#@}" -ne 1 ]
+then
+    echo 'Usage: bash preprocess.sh <input_txt>'
+    exit 1
+fi
+
+main "${@}"
